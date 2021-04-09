@@ -6,9 +6,8 @@
  * @Description: In User Settings Edit
  * @FilePath: \server\readme.md
 -->
-
+mongod启动命令
 ```mongod
 mongod --dbpath c:/mongo/data/db
 ```
 
-如上：mongod 启动命令
