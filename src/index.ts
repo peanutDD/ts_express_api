@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 22:29:26
- * @LastEditTime: 2021-04-10 00:33:33
+ * @LastEditTime: 2021-04-10 13:40:13
  * @LastEditors: peanut
  * @Description: In User Settings Edit
  * @FilePath: \server\src\index.ts
@@ -50,6 +50,11 @@ app
   .post(checkAuthMiddleware, postController.createPost);
 
 // 必须确认是否登录，保证token不过期，才能访问 posts
+
+app
+  .route("/posts/:id")
+  .get(postController.getPost)
+  .put(checkAuthMiddleware, postController.updatePost)
 
 app.use((_req: Request, _res: Response, next: NextFunction) => {
   const error: HttpException = new HttpException(

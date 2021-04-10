@@ -2,7 +2,7 @@
  * @Author: peanut
  * @Date: 2021-04-08 14:58:49
  * @LastEditors: peanut
- * @LastEditTime: 2021-04-10 00:13:25
+ * @LastEditTime: 2021-04-10 13:16:21
  * @Description: file content
  */
 
@@ -92,7 +92,7 @@ const userSchema: Schema = new Schema(
   }
 );
 
-// 这样那也可以设置时间戳
+// 这样也可以设置时间戳
 // userSchema.set('timestamps', true)
 
 userSchema.index({ username: 1 });

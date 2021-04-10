@@ -2,11 +2,13 @@
  * @Author: peanut
  * @Date: 2021-04-08 02:40:09
  * @LastEditors: peanut
- * @LastEditTime: 2021-04-09 16:25:12
+ * @LastEditTime: 2021-04-10 12:58:25
  * @Description: file content
  */
 import { UserDocument } from "../models/user";
 import validator from "validator";
+import HttpException from '../exceptions/HttpExceptions'
+import StatusCodes from 'http-status-codes'
 
 interface RegisterInputError extends Partial<UserDocument> {
   confirmPassword?: string;
@@ -74,4 +76,12 @@ export const validateRegisterInput = (
     errors,
     valid: Object.keys(errors).length < 1,
   };
+};
+
+export const checkBody = (body: string) => {
+  if (isEmpty(body.trim())) {
+    throw new HttpException(StatusCodes.UNPROCESSABLE_ENTITY, "Body must be not empty", {
+      body: "The body must be not empty"
+    });
+  }
 };
