@@ -2,7 +2,7 @@
 * @Author: peanut
 * @Date: 2021-04-09 15:32:11
  * @LastEditors: peanut
- * @LastEditTime: 2021-04-11 00:19:47
+ * @LastEditTime: 2021-04-11 00:40:32
 * @Description: file content
 */
 import { Request, Response, NextFunction } from "express";
@@ -80,6 +80,38 @@ export const updatePost = async (
         });
       } else {
         throw new HttpException(StatusCodes.UNAUTHORIZED, "Action not allowed")
+      }
+    } else {
+      throwPostNotFoundError();
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deletePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const post = await Post.findById(id);
+
+    const user = req.currentUser as UserDocument;
+    // const user = <UserDocument>(req.currentUser);
+
+    if (post) {
+      if (post.username === user.username) {
+        await Post.findByIdAndDelete(id);
+
+        res.json({
+          success: true,
+          data: { message: "deleted successfully" }
+        });
+      } else {
+        throw new HttpException(StatusCodes.UNAUTHORIZED, "Action not allowed");
       }
     } else {
       throwPostNotFoundError();
