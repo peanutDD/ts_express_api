@@ -24,5 +24,5 @@ mongod --dbpath c:/mongo/data/db
 
 ### 数据库部分关系
 
-![关系图](https://wx1.sinaimg.cn/mw1024/999777b7ly1gpfrkfl8n4j20sc0eit93.jpg)
+![关系图](https://wx1.sinaimg.cn/mw690/999777b7ly1gpfruphw5cj20sc0eit93.jpg)
 ----------------------------------------------------------------------------------
