@@ -8,11 +8,17 @@
 import { Schema, model, Document } from "mongoose";
 import { UserDocument } from "./user";
 
+interface Like {
+  username: String;
+  createAt: String
+}
+
 interface PostDocument extends Document {
   body: string;
   createdAt: string;
   username: string;
   user: UserDocument["_id"];
+  likes: Like[]
 }
 
 const postSchema: Schema = new Schema({
@@ -23,7 +29,13 @@ const postSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "users",
     required: true
-  }
+  },
+  likes: [
+    {
+      username: String,
+      createAt: String
+    }
+  ]
 });
 
 const Post = model<PostDocument>("Post", postSchema);

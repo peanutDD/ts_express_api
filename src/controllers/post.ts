@@ -1,17 +1,17 @@
 /*
-* @Author: peanut
-* @Date: 2021-04-09 15:32:11
+ * @Author: peanut
+ * @Date: 2021-04-09 15:32:11
  * @LastEditors: peanut
- * @LastEditTime: 2021-04-11 00:40:32
-* @Description: file content
-*/
+ * @LastEditTime: 2021-04-11 15:15:41
+ * @Description: file content
+ */
 import { Request, Response, NextFunction } from "express";
 import Post from "../models/post";
 import { UserDocument } from "../models/user";
 import { throwPostNotFoundError } from "../utils/throwError";
-import { StatusCodes } from 'http-status-codes';
+import { StatusCodes } from "http-status-codes";
 import { checkBody } from "../utils/validator";
-import HttpException from '../exceptions/HttpExceptions'
+import HttpException from "../exceptions/HttpExceptions";
 // import {requestWithUser} from '../types/requestWithUser'
 
 export const getPosts = async (
@@ -63,14 +63,17 @@ export const updatePost = async (
 
     const { body } = req.body;
     checkBody(body);
-    console.log(body)
 
     const user = req.currentUser as UserDocument;
 
     if (post) {
       if (user.username === post.username) {
         // {new: true} 表示返回最新的 body 否则将返回之前的旧 body
-        const resPost = await Post.findByIdAndUpdate(id, {body}, { new: true });
+        const resPost = await Post.findByIdAndUpdate(
+          id,
+          { body },
+          { new: true }
+        );
         res.json({
           success: true,
           data: {
@@ -79,7 +82,7 @@ export const updatePost = async (
           },
         });
       } else {
-        throw new HttpException(StatusCodes.UNAUTHORIZED, "Action not allowed")
+        throw new HttpException(StatusCodes.UNAUTHORIZED, "Action not allowed");
       }
     } else {
       throwPostNotFoundError();
@@ -96,9 +99,7 @@ export const deletePost = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-
     const post = await Post.findById(id);
-
     const user = req.currentUser as UserDocument;
     // const user = <UserDocument>(req.currentUser);
 
@@ -108,11 +109,52 @@ export const deletePost = async (
 
         res.json({
           success: true,
-          data: { message: "deleted successfully" }
+          data: { message: "deleted successfully" },
         });
       } else {
         throw new HttpException(StatusCodes.UNAUTHORIZED, "Action not allowed");
       }
+    } else {
+      throwPostNotFoundError();
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const likePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const post = await Post.findById(id);
+    const user = req.currentUser as UserDocument;
+    if (post) {
+      if (post.likes.find((like) => like.username === post.username)) {
+        post.likes = post.likes.filter(
+          (like) => like.username !== post.username
+        );
+      } else if (
+        user.username !== post.username &&
+        post.likes.find((like) => like.username !== post.username)
+      ) {
+        post.likes = post.likes.filter((like) => {
+          like.username === post.username;
+        });
+      } else {
+        post.likes.push({
+          username: user.username,
+          createAt: new Date().toISOString(),
+        });
+      }
+      await post.save();
+      res.json({
+        success: true,
+        data: { post },
+      });
+      console.log(post.likes);
     } else {
       throwPostNotFoundError();
     }
@@ -133,7 +175,6 @@ export const createPost = async (
     // 两种方式进行非空断言
 
     const { body } = req.body;
-
     checkBody(body);
 
     const newPost = new Post({

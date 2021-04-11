@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 22:29:26
- * @LastEditTime: 2021-04-10 13:40:13
+ * @LastEditTime: 2021-04-11 12:26:26
  * @LastEditors: peanut
  * @Description: In User Settings Edit
  * @FilePath: \server\src\index.ts
@@ -55,6 +55,11 @@ app
   .route("/posts/:id")
   .get(postController.getPost)
   .put(checkAuthMiddleware, postController.updatePost)
+  .delete(checkAuthMiddleware, postController.deletePost)
+
+// 点赞功能 thumbup
+
+app.post("/posts/:id/like",checkAuthMiddleware, postController.likePost)
 
 app.use((_req: Request, _res: Response, next: NextFunction) => {
   const error: HttpException = new HttpException(
