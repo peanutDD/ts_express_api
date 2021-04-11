@@ -2,7 +2,7 @@
  * @Author: peanut
  * @Date: 2021-04-09 15:32:11
  * @LastEditors: peanut
- * @LastEditTime: 2021-04-11 15:15:41
+ * @LastEditTime: 2021-04-11 15:31:03
  * @Description: file content
  */
 import { Request, Response, NextFunction } from "express";
@@ -132,10 +132,12 @@ export const likePost = async (
     const post = await Post.findById(id);
     const user = req.currentUser as UserDocument;
     if (post) {
+      // 判断当是自己发表的文章时，自己给自己点赞的实现逻辑（此时是自己的账号在登录）
       if (post.likes.find((like) => like.username === post.username)) {
         post.likes = post.likes.filter(
           (like) => like.username !== post.username
         );
+      // 判断当是别人登录时，别人给自己点赞的逻辑实现（此时是别的账号给文章的所有人点赞）
       } else if (
         user.username !== post.username &&
         post.likes.find((like) => like.username !== post.username)
