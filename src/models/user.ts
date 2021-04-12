@@ -2,7 +2,7 @@
  * @Author: peanut
  * @Date: 2021-04-08 14:58:49
  * @LastEditors: peanut
- * @LastEditTime: 2021-04-10 13:16:21
+ * @LastEditTime: 2021-04-12 21:29:57
  * @Description: file content
  */
 
@@ -18,6 +18,8 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JwtPayload } from "../types/Jwt";
+// import { PostDocument, postSchema } from "../models/post";
+import { PostDocument } from "../models/post";
 
 enum Role {
   basic = "basic",
@@ -31,11 +33,7 @@ interface Address {
 
 interface UserModel extends Model<UserDocument> {
   admin: () => Query<UserDocument, UserDocument, {}>;
-  orderByUsernameDesc: () => Query<
-    UserDocument[],
-    UserDocument,
-    {}
-  >;
+  orderByUsernameDesc: () => Query<UserDocument[], UserDocument, {}>;
 }
 
 export interface UserDocument extends Document {
@@ -50,6 +48,10 @@ export interface UserDocument extends Document {
   role: Role;
   addresses: Address[];
   generateToken: () => string;
+  // like_posts: PostDocument[];
+  // 这里可以让like_posts只存储 _id , 节省空间
+  like_posts: PostDocument["_id"][],
+  body: string
 }
 
 const addressSchema: Schema = new Schema({
@@ -86,6 +88,13 @@ const userSchema: Schema = new Schema(
     // createdAt: String, 手动设置时间戳
     // updatedAt: String, 手动设置时间戳
     uuid: { type: String, default: uuidv4() },
+    like_posts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      }
+    ],
+    // like_posts: { type: [postSchema] }
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: false }, // 设置时间戳
@@ -101,24 +110,30 @@ userSchema.index({ username: 1 });
 userSchema.methods.generateToken = function (): string {
   const payload: JwtPayload = { id: this._id };
   return jwt.sign(payload, process.env.JWT_SECRET_KEY!, {
-    expiresIn: "12h",
+    expiresIn: "2d",
   });
 };
 // 创建一个mongoose instance method
 
 // 静态方法
-userSchema.static("admin", ():Query<UserDocument | null, UserDocument, {}> => {
-  return User.findOne({ username: "peanut" });
-});
+userSchema.static(
+  "admin",
+  (): Query<UserDocument | null, UserDocument, {}> => {
+    return User.findOne({ username: "peanut" });
+  }
+);
 
-userSchema.static("orderByUsernameDesc", ():Query<UserDocument[], UserDocument, {}> => {
-  return User.find({}).sort({ createAt: 1 });
-});
+userSchema.static(
+  "orderByUsernameDesc",
+  (): Query<UserDocument[], UserDocument, {}> => {
+    return User.find({}).sort({ createAt: 1 });
+  }
+);
 // 静态方法
 
 userSchema.pre<UserDocument>(
   "save",
-  async function save(next: HookNextFunction) {
+  async function save(this: UserDocument,next: HookNextFunction) {
     // 在修改之前进行判断，这也是手动的， 一般用数据库设置就行了
     // if (this.isNew) {
     //   this.createdAt = new Date().toDateString();

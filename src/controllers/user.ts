@@ -2,7 +2,7 @@
  * @Author: peanut
  * @Date: 2021-04-08 01:31:11
  * @LastEditors: peanut
- * @LastEditTime: 2021-04-10 13:26:02
+ * @LastEditTime: 2021-04-12 16:53:29
  * @Description: file content
  */
 import { Request, Response, NextFunction } from "express";
@@ -44,7 +44,7 @@ export const postLogin = async (
       return throwLoginValidateError(errors);
     }
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }).populate("like_posts");
 
     if (!user) {
       errors.general = "User not found";
@@ -64,6 +64,7 @@ export const postLogin = async (
       success: true,
       data: {
         token,
+        user
       },
     });
   } catch (error) {
@@ -135,8 +136,7 @@ export const postRegister = async (
     res.json({
       success: true,
       data: {
-        resUser,
-        token,
+        token
       },
     });
   } catch (error) {
