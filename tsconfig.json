@@ -75,7 +75,7 @@
     "resolveJsonModule": true,
   },
   "files": [   // 指定待编译文件
-    "./src/index.ts"
+    "src/app.ts"
   ],
   "exclude": [
     "node_modules"

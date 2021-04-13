@@ -1,4 +1,11 @@
 /*
+ * @Author: peanut
+ * @Date: 2021-04-13 13:29:27
+ * @LastEditors: peanut
+ * @LastEditTime: 2021-04-13 13:34:08
+ * @Description: file content
+ */
+/*
  * @Author: your name
  * @Date: 2021-04-07 22:29:26
  * @LastEditTime: 2021-04-12 22:14:44
@@ -11,15 +18,12 @@ import mongoose from "mongoose";
 import StatusCodes from "http-status-codes";
 import HttpException from "./exceptions/HttpExceptions";
 import errorMiddleware from "./middlewares/error.middleware";
-import * as userController from "./controllers/user";
-import * as postController from "./controllers/post";
+import routes from "./routes";
+
 import "dotenv/config";
-import checkAuthMiddleware from "./middlewares/check-auth.middleware";
 import Morgan from 'morgan'
 import helmet from 'helmet'
 import cors from 'cors'
-import * as commentController from "./controllers/comments";
-
 // import bodyParser from 'body-parser'
 
 const app: Express = express();
@@ -38,39 +42,7 @@ const port: any = process.env.PORT || 6060;
 // app.use(bodyParser.json())
 app.use(express.json());
 
-app.post("/users/register", userController.postRegister);
-app.post("/users/login", userController.postLogin);
-
-// 必须确认是否登录，保证token不过期，才能访问 posts
-
-// app.use(checkAuthMiddleware)
-
-// app.get("/posts", postController.getPosts)
-// app.post("/posts", postController.createPost)
-
-// 可以对上面注释的代码合并
-app
-  .route("/posts")
-  .get(postController.getPosts)
-  .post(checkAuthMiddleware, postController.createPost);
-
-// 必须确认是否登录，保证token不过期，才能访问 posts
-
-app
-  .route("/posts/:id")
-  .get(postController.getPost)
-  .put(checkAuthMiddleware, postController.updatePost)
-  .delete(checkAuthMiddleware, postController.deletePost)
-
-// 点赞功能 thumbup
-
-app.post("/posts/:id/like",checkAuthMiddleware, postController.likePost)
-
-// 评论功能
-
-app.get("/posts/:id/comment/:commentId", checkAuthMiddleware, commentController.getComment)
-app.post("/posts/:id/comment", checkAuthMiddleware, commentController.createComment)
-app.delete("/posts/:id/comment/:commentId", checkAuthMiddleware, commentController.deleteComment)
+app.use('/', routes)
 
 app.use((_req: Request, _res: Response, next: NextFunction) => {
   const error: HttpException = new HttpException(
